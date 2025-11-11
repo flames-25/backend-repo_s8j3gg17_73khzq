@@ -1,0 +1,51 @@
+// Prisma schema for Bina Ragam
+// PostgreSQL datasource
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  products  Product[]
+}
+
+model Product {
+  id               String    @id @default(uuid())
+  name             String
+  description      String
+  imageUrl         String
+  price            Float
+  marketplaceLink  String
+  category         String?
+  createdAt        DateTime  @default(now())
+  discount         Discount? @relation(fields: [discountId], references: [id])
+  discountId       String?
+  owner            User      @relation(fields: [ownerId], references: [id])
+  ownerId          String
+}
+
+model Discount {
+  id          String   @id @default(uuid())
+  percentage  Int
+  startDate   DateTime
+  endDate     DateTime
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  products    Product[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
